@@ -181,9 +181,9 @@ class SkewDetect:
         lmax = 0
 
         for j in range(len(angles)):
-            l = len(angles[j])
-            if l >= lmax:
-                lmax = l
+            angle_length = len(angles[j])
+            if angle_length >= lmax:
+                lmax = angle_length
                 maxi = j
 
         if lmax:

@@ -21,7 +21,7 @@ def get_hospital_key(rs_ocr: str, config) -> str:
     return 'Others'
 
 
-def get_hospital_key_api(hospCode: str, field_data: dict, config: str, store: int=0) -> str:
+def get_hospital_key_api(hospCode: str, field_data: dict, config: str, store: int = 0) -> str:
     """
     Get the key corresponding to the hospital name passed via API.
 
@@ -106,7 +106,6 @@ def hospital_info_from_NTU(text, field_data):
         '國立臺灣大學醫學院附設醫院兒童醫院': r'兒童',
         '國立臺灣大學醫學院附設醫院': r'[臺]?[灣]?'
     }
-    
     for hospital_name, key in hospital_regex_map.items():
         if re.search(key, text):
             field_data['欄位名稱'].append('醫院名稱')

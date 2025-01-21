@@ -65,7 +65,7 @@ if __name__ == "__main__":
         img_processed = deskew(img_stage1)
 
     # process block
-    combined_df = select_pipeline(field_data, hospital_key, img_processed, ocr,yolo_stage2, opt)
+    combined_df = select_pipeline(field_data, hospital_key, img_processed, ocr, yolo_stage2, opt)
     # post-process block
     generate_json_result(combined_df, opt.input)
     end = time.time()

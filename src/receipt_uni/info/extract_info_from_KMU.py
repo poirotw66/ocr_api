@@ -81,18 +81,18 @@ def extract_info_from_KMU(text,field_data):
         except ValueError:
             pass
         field_data['欄位名稱'].append('住院起日')
-        if date_obj1!=0:
+        if date_obj1 != 0:
             field_data['ocr辨識結果'].append(formatted_date1)
         else:
             field_data['ocr辨識結果'].append(date_range_match.group(1))
         
         field_data['欄位名稱'].append('住院迄日')
-        if date_obj2!=0:
+        if date_obj2 != 0:
             field_data['ocr辨識結果'].append(formatted_date2)
         else:
             field_data['ocr辨識結果'].append(date_range_match.group(2))
-    elif date_matches and len(date_matches)>=2:
-        date_obj1, date_obj2=0, 0
+    elif date_matches and len(date_matches) >= 2:
+        date_obj1, date_obj2 = 0, 0
         try:
             date_obj1 = datetime.strptime(date_matches[0], "%Y%m%d")
             formatted_date1 = date_obj1.strftime("%Y/%m/%d")
@@ -101,13 +101,13 @@ def extract_info_from_KMU(text,field_data):
         except ValueError:
             pass
         field_data['欄位名稱'].append('住院起日')
-        if date_obj1!=0:
+        if date_obj1 != 0:
             field_data['ocr辨識結果'].append(formatted_date1)
         else:
             field_data['ocr辨識結果'].append(date_matches[0])
         
         field_data['欄位名稱'].append('住院迄日')
-        if date_obj2!=0:
+        if date_obj2 != 0:
             field_data['ocr辨識結果'].append(formatted_date2)
         else:
             field_data['ocr辨識結果'].append(date_matches[1])
@@ -119,13 +119,14 @@ def get_value(rs, columns):
     try:
         return rs[columns][0]
     except:
+        print("Error: No value found in the column")
         return ''
     
 def check_details(rs_ocr):
-    search_terms = ["名稱","數量"]
+    search_terms = ["名稱", "數量"]
     for term in search_terms:
         index = rs_ocr.find(term)
-        if index !=-1:
+        if index  != -1:
             return "details"
     return "receipt"
     

@@ -500,7 +500,7 @@ class CMH_Pipeline(HospitalPipeline):
         hospital_info_from_CMH(
             rs_ocr[:50], field_data) if '醫院名稱' not in field_data['欄位名稱'] else None
         extract_info_from_CMH(rs_ocr, field_data)
-        return x_df
+        return field_data
 
     def table_info(self, rs_ocr_range, field_data, dict4, ocr):
         rs_table = get_ocr_table_line_result(
@@ -524,7 +524,7 @@ class TVGH_Pipeline(HospitalPipeline):
     def preprocess_data(self, rs_ocr):
         return rs_ocr
 
-    def text_info(self, rs_ocr, field_data):
+    def text_info(self, img, ocr, rs_ocr, field_data):
         hospital_info_from_TVGH(
             rs_ocr[:50], field_data) if '醫院名稱' not in field_data['欄位名稱'] else None
         border_rs = get_ocr_sentence_border_result(
@@ -550,7 +550,7 @@ class KVGH_Pipeline(HospitalPipeline):
     def preprocess_data(self, rs_ocr):
         return re.sub('[a-zA-Z]', '', rs_ocr)
 
-    def text_info(self, rs_ocr, field_data):
+    def text_info(self, img, ocr, rs_ocr, field_data):
         hospital_info_from_KVGH(
             rs_ocr, field_data) if '醫院名稱' not in field_data['欄位名稱'] else None
         extract_sect_from_KVGH(rs_ocr, field_data)
@@ -593,14 +593,14 @@ class NCKU_Pipeline(HospitalPipeline):
     def preprocess_data(self, rs_ocr):
         return re.sub('[a-zA-Z]', '', rs_ocr)
 
-    def text_info(self, rs_ocr, field_data):
-        hospital_info_from_NCKU(
-            rs_ocr[:50], field_data) if '醫院名稱' not in field_data['欄位名稱'] else None
-        x = during_hos_from_text_NCKU(rs_ocr_range, field_data)
-        y = extract_info_from_NCKU(rs_ocr_range, field_data)
-        w = depaerment_from_text_NCKU(rs_ocr, field_data)
-        z = date_info_from_text_NCKU(rs_ocr, field_data)
-        return pd.DataFrame(field_data)
+    # def text_info(self, rs_ocr, field_data):
+    #     hospital_info_from_NCKU(
+    #         rs_ocr[:50], field_data) if '醫院名稱' not in field_data['欄位名稱'] else None
+    #     x = during_hos_from_text_NCKU(rs_ocr_range, field_data)
+    #     y = extract_info_from_NCKU(rs_ocr_range, field_data)
+    #     w = depaerment_from_text_NCKU(rs_ocr, field_data)
+    #     z = date_info_from_text_NCKU(rs_ocr, field_data)
+    #     return pd.DataFrame(field_data)
 
     def table_info(self, rs_ocr_range, field_data, dict4, ocr):
         return field_data
@@ -619,7 +619,7 @@ class ChiMei_Pipeline(HospitalPipeline):
     def preprocess_data(self, rs_ocr):
         return re.sub('[a-zA-Z]', '', rs_ocr)
 
-    def text_info(self, rs_ocr, field_data):
+    def text_info(self, img, ocr, rs_ocr, rs_ocr_range, field_data):
         hospital_info_from_ChiMei(
             rs_ocr, field_data) if '醫院名稱' not in field_data['欄位名稱'] else None
         border_rs = get_ocr_sentence_bi_border_result(
@@ -639,55 +639,55 @@ class ChiMei_Pipeline(HospitalPipeline):
         pass
 
 
-class TCGH_Pipeline(HospitalPipeline):
-    def crop_from_label(self, img, yolo_stage2, opt, key, thr=0.45):
-        pass
+# class TCGH_Pipeline(HospitalPipeline):
+#     def crop_from_label(self, img, yolo_stage2, opt, key, thr=0.45):
+#         pass
 
-    def preprocess_data(self, rs_ocr):
-        return rs_ocr
+#     def preprocess_data(self, rs_ocr):
+#         return rs_ocr
 
-    def text_info(self, rs_ocr, field_data):
-        decimal_receipt_pattern = re.compile(r'繳\s*費\s*\證\s*明')
-        decimal_match = re.search(decimal_receipt_pattern, rs_ocr)
-        is_decimal = bool(decimal_match)
-        label2 = detect(im0s=img, model=yolo_stage2, opt=opt)
-        dict4 = crop_image_from_label_stage2(img, label2, key, thr=0.45)
-        hospital_info_from_TCGH(
-            rs_ocr[:50], field_data) if '醫院名稱' not in field_data['欄位名稱'] else None
-        extract_info_from_TCGH(rs_ocr, field_data)
-        if '門診醫療' in rs_ocr:
-            rs_table = get_ocr_table_line_result(
-                dict4, border=[0.19, 0.49], ocr=ocr)
-        else:
-            rs_table = get_ocr_table_line_result(
-                dict4, border=[0.43, 0.77], ocr=ocr)
-        rs_table = replace_mark(rs_table)
-        rs = extract_column_from_TCGH(rs_table, is_decimal)
-        exist = '合計' in rs['欄位名稱'].values
-        if exist:
-            index_of_total_amount = rs[rs['欄位名稱'] == '合計'].index[0]
-            total_amount = rs['ocr辨識結果'][index_of_total_amount]
-            if '總金額' not in field_data['欄位名稱']:
-                field_data['欄位名稱'].append('總金額')
-                field_data['ocr辨識結果'].append(total_amount)
-            else:
-                index_of_total_amount_field_data = field_data['欄位名稱'].index(
-                    '總金額')
-                field_data['ocr辨識結果'][index_of_total_amount_field_data] = total_amount
-            rs.drop(rs[rs['欄位名稱'] == '合計'].index, inplace=True)
-            # combined_df = pd.DataFrame(x)
-        x_df = pd.DataFrame(field_data)
-        combined_df = pd.concat([x_df, rs], axis=0)
-        return pd.DataFrame(combined_df)
+#     def text_info(self, rs_ocr, field_data):
+#         decimal_receipt_pattern = re.compile(r'繳\s*費\s*\證\s*明')
+#         decimal_match = re.search(decimal_receipt_pattern, rs_ocr)
+#         is_decimal = bool(decimal_match)
+#         label2 = detect(im0s=img, model=yolo_stage2, opt=opt)
+#         dict4 = crop_image_from_label_stage2(img, label2, key, thr=0.45)
+#         hospital_info_from_TCGH(
+#             rs_ocr[:50], field_data) if '醫院名稱' not in field_data['欄位名稱'] else None
+#         extract_info_from_TCGH(rs_ocr, field_data)
+#         if '門診醫療' in rs_ocr:
+#             rs_table = get_ocr_table_line_result(
+#                 dict4, border=[0.19, 0.49], ocr=ocr)
+#         else:
+#             rs_table = get_ocr_table_line_result(
+#                 dict4, border=[0.43, 0.77], ocr=ocr)
+#         rs_table = replace_mark(rs_table)
+#         rs = extract_column_from_TCGH(rs_table, is_decimal)
+#         exist = '合計' in rs['欄位名稱'].values
+#         if exist:
+#             index_of_total_amount = rs[rs['欄位名稱'] == '合計'].index[0]
+#             total_amount = rs['ocr辨識結果'][index_of_total_amount]
+#             if '總金額' not in field_data['欄位名稱']:
+#                 field_data['欄位名稱'].append('總金額')
+#                 field_data['ocr辨識結果'].append(total_amount)
+#             else:
+#                 index_of_total_amount_field_data = field_data['欄位名稱'].index(
+#                     '總金額')
+#                 field_data['ocr辨識結果'][index_of_total_amount_field_data] = total_amount
+#             rs.drop(rs[rs['欄位名稱'] == '合計'].index, inplace=True)
+#             # combined_df = pd.DataFrame(x)
+#         x_df = pd.DataFrame(field_data)
+#         combined_df = pd.concat([x_df, rs], axis=0)
+#         return pd.DataFrame(combined_df)
 
-    def table_info(self, rs_ocr_range, field_data, dict4, ocr):
-        return field_data
+#     def table_info(self, rs_ocr_range, field_data, dict4, ocr):
+#         return field_data
 
-    def check_if_details(self, rs_ocr):
-        return False
+#     def check_if_details(self, rs_ocr):
+#         return False
 
-    def detail_info(self, rs_ocr, field_data):
-        pass
+#     def detail_info(self, rs_ocr, field_data):
+#         pass
 
 
 class TCGH_puli_Pipeline(HospitalPipeline):
@@ -697,7 +697,7 @@ class TCGH_puli_Pipeline(HospitalPipeline):
     def preprocess_data(self, rs_ocr):
         return rs_ocr
 
-    def text_info(self, rs_ocr, field_data):
+    def text_info(self, img, ocr, rs_ocr, field_data):
         hospital_info_from_TCGH_puli(
             rs_ocr[:50], field_data) if '醫院名稱' not in field_data['欄位名稱'] else None
         border_rs = get_ocr_sentence_border_result(
@@ -723,7 +723,7 @@ hospital_key = {
     'CG': CG_Pipeline,
     'CMH': CMH_Pipeline,
     'TVGH': TVGH_Pipeline,
-    'TCGH': TCGH_Pipeline,
+    # 'TCGH': TCGH_Pipeline,
     'TCGH_puli': TCGH_puli_Pipeline,
     'KVGH': KVGH_Pipeline,
     # 'NCKU':NCKU_pipeline,
