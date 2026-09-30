@@ -1,0 +1,24 @@
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+!.env_example
+*.pem
+*.key
+*.p12
+*.pfx
+*.tfstate
+*.tfstate.*
+*.tfvars
+*service-account*.json
+*credentials*.json
+secrets/
+
+# Runtime and workstation files
+__pycache__/
+*.py[cod]
+node_modules/
+.venv/
+venv/
+.DS_Store
+*.log
